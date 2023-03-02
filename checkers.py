@@ -129,9 +129,9 @@ def evaluate(state, max): #TODO - optimize if time?
             elif state.board[i][j] == 'b':
                 black_points += 1
             elif state.board[i][j] == 'R':
-                red_points += 2
+                red_points += 2.5
             elif state.board[i][j] == 'B':
-                black_points += 2
+                black_points += 2.5
     
     if max == 'r':
             return red_points - black_points
@@ -187,7 +187,7 @@ def max_value(state, alpha, beta, depth, player, ogs,maxp,cache): #TODO - assign
         return v # return the current state with its terminal value
     return state, v[1]
 
-def min_value(state, alpha, beta, depth, player, ogs,maxp, cache): #TODO - assign depth limit, check when switching players 
+def min_value(state, alpha, beta, depth, player, ogs,maxp, cache): 
     '''Return the minimum utility value for the given state, alpha, beta,
     player, and depth. ogs is the original state (root of the game tree).'''
     max_depth = 8 # TODO - pick good one
@@ -196,7 +196,7 @@ def min_value(state, alpha, beta, depth, player, ogs,maxp, cache): #TODO - assig
             return (state, cache[str(state)])
         cache[str(state)] = utility(state, player, maxp, depth)
         return (state, cache[str(state)])
-    if depth == max_depth: #or is_terminal(state, player)==True: # reached the depth limit. TODO - how to differentiate between terminal and non-terminal states?
+    if depth == max_depth: #or is_terminal(state, player)==True: # reached the depth limit.
         return (state, evaluate(state, maxp)) # estimate player's utility
     
     v = (None, float('inf')) # initialize every min node
@@ -506,10 +506,10 @@ def play(state, turn='r', outputfile="output.txt"):
         turn = get_next_turn(turn) # switch turns
         res += convert_to_str(state)
         move_count += 1
-        print("move: ", move_count)
-        state.display() # display the board
-        print()
-        #TODO: later write each state (including initial) into output file
+        # print("move: ", move_count)
+        # print("player: ",get_next_turn(turn))
+        # state.display() # display the board
+        # print()
     
     file.write(res)
     file.close()
@@ -540,10 +540,10 @@ if __name__ == '__main__':
         required=True,
         help="The output file that contains the solution."
     )
-    # args = parser.parse_args()
+    args = parser.parse_args()
     
-    # initial_board = read_from_file(args.inputfile)
-    initial_board = read_from_file('input.txt')
+    initial_board = read_from_file(args.inputfile)
+    # initial_board = read_from_file('input.txt')
 
     state = State(initial_board)
     turn = 'r'
@@ -582,7 +582,7 @@ if __name__ == '__main__':
 
     print("testing checkers simulation: ")
     time1 = time.time()
-    play(state, 'r')
+    play(state, 'r', args.outputfile)
     time2 = time.time()
     print("elapsed time: ", time2 - time1)
 

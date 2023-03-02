@@ -138,19 +138,21 @@ def evaluate(state, max): #TODO - optimize if time?
     else:
         return black_points - red_points
 
-def alpha_beta_search(state, player): #TODO - is this even right? FIX
+def alpha_beta_search(state, player, cache): #TODO - is this even right? FIX
     '''Perform alpha-beta pruning on the given state for the given player using
     a PRE-SPECIFIED depth limit (TODO - pick good one). TODO: Use gen_successors here
     to have a list of moves to judge?? When the program reaches the depth limit, 
-    apply the evaluation function. Return the best move.'''
+    apply the evaluation function. Return the best move.
+    
+    v is a tuple with format (state, terminal value)'''
     # if state in cache:
     #     return cache[state]
-    v = max_value(state, -float('inf'), float('inf'), 1, player, state, player) #TODO change to opponent's player??
+    v = max_value(state, -float('inf'), float('inf'), 1, player, state, player, cache) 
     # cache[state] = v[0]
     # print(v)
     return v[0]
 
-def max_value(state, alpha, beta, depth, player, ogs,maxp): #TODO - assign depth limit, utility not even used here!!
+def max_value(state, alpha, beta, depth, player, ogs,maxp,cache): #TODO - assign depth limit, utility not even used here!!
     '''Return the maximum utility value for the given state, alpha, beta, 
     player, and depth. 
     - ogs is the original state (root of the game tree)
@@ -159,7 +161,10 @@ def max_value(state, alpha, beta, depth, player, ogs,maxp): #TODO - assign depth
     '''
     max_depth = 8 # TODO - pick good one
     if is_terminal(state, player):
-        return (state, utility(state, player, maxp, depth))
+        if str(state) in cache.keys():
+            return (state, cache[str(state)])
+        cache[str(state)] = utility(state, player, maxp, depth)
+        return (state, cache[str(state)])
     if depth == max_depth: #or is_terminal(state, player)==True: # reached the depth limit. TODO - how to differentiate between terminal and non-terminal states?
         return (state, evaluate(state, maxp)) # estimate player's utility
     v = (None, -float('inf')) 
@@ -169,7 +174,7 @@ def max_value(state, alpha, beta, depth, player, ogs,maxp): #TODO - assign depth
     successors.sort(key=lambda x: evaluate(x, maxp), reverse=True) # sort by descending utility for max player 
 
     for action in successors:
-        m = min_value(action, alpha, beta, depth + 1, get_next_turn(player), ogs,maxp)
+        m = min_value(action, alpha, beta, depth + 1, get_next_turn(player), ogs,maxp, cache)
         if m[1] >= v[1]:
             v = m # overwrite the parent's value and state if the child value is better with the child value
 
@@ -182,12 +187,15 @@ def max_value(state, alpha, beta, depth, player, ogs,maxp): #TODO - assign depth
         return v # return the current state with its terminal value
     return state, v[1]
 
-def min_value(state, alpha, beta, depth, player, ogs,maxp): #TODO - assign depth limit, check when switching players 
+def min_value(state, alpha, beta, depth, player, ogs,maxp, cache): #TODO - assign depth limit, check when switching players 
     '''Return the minimum utility value for the given state, alpha, beta,
     player, and depth. ogs is the original state (root of the game tree).'''
     max_depth = 8 # TODO - pick good one
     if is_terminal(state, player):
-        return (state, utility(state, player, maxp, depth))
+        if str(state) in cache.keys():
+            return (state, cache[str(state)])
+        cache[str(state)] = utility(state, player, maxp, depth)
+        return (state, cache[str(state)])
     if depth == max_depth: #or is_terminal(state, player)==True: # reached the depth limit. TODO - how to differentiate between terminal and non-terminal states?
         return (state, evaluate(state, maxp)) # estimate player's utility
     
@@ -200,7 +208,7 @@ def min_value(state, alpha, beta, depth, player, ogs,maxp): #TODO - assign depth
 
     for action in successors:
         action.parent = state
-        m = max_value(action, alpha, beta, depth + 1, get_next_turn(player), ogs,maxp)
+        m = max_value(action, alpha, beta, depth + 1, get_next_turn(player), ogs,maxp, cache)
         if m[1] <= v[1]:
             v = m
         if v[1] <= alpha:
@@ -491,9 +499,10 @@ def play(state, turn='r', outputfile="output.txt"):
     file = open(outputfile, "w")
     res += convert_to_str(state) # add the initial state 
     move_count = 0
+    cache = {}
 
     while not is_terminal(state, turn):
-        state = alpha_beta_search(state, turn) # returns best action for that player
+        state = alpha_beta_search(state, turn, cache) # returns best action for that player
         turn = get_next_turn(turn) # switch turns
         res += convert_to_str(state)
         move_count += 1

@@ -292,12 +292,6 @@ def possible_simple_moves(state, turn):
                                 move(new_state, (i, j, i + 1, j - 1))
                                 moves.append(new_state)
 
-    # Node ordering of states sorted by utility (best possible state first):
-    # if moves != []:
-    #     if turn == 'r': # highest to lowest estimated utility (max player)
-    #         moves.sort(key=lambda x: evaluate(x, 'r'), reverse=True) #TODO check this!! x is the state (list value)
-    #     elif turn == 'b': # lowest to highest utility (min player)
-    #         moves.sort(key=lambda x: evaluate(x, 'b'), reverse=False)
     return moves # a list of simple successor states
 
 def try_jumps(state, turn): #TODO : optimize with node ordering/state caching
@@ -339,14 +333,6 @@ def try_jumps(state, turn): #TODO : optimize with node ordering/state caching
             for j in range(8): # check bottom row for blacks 
                 if s.board[7][j] == 'b':
                     s.board[7][j] = 'B'
-
-    # Sort states (node ordering) by better utility: 
-    # if jumped != []:
-    #     if turn == 'r': # sort by max estimated utility (descending)
-    #         jumped.sort(key=lambda x: evaluate(x, 'r'), reverse=True) 
-    #         # print("node ordering occured")
-    #     elif turn == 'b': # sort by min estimated utility (ascending)
-    #         jumped.sort(key=lambda x: evaluate(x, 'b'), reverse=False)
     
     return jumped # Base case: no possible jumps at all, so jumped = []
 

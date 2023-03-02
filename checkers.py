@@ -143,9 +143,10 @@ def alpha_beta_search(state, player): #TODO - is this even right? FIX
     a PRE-SPECIFIED depth limit (TODO - pick good one). TODO: Use gen_successors here
     to have a list of moves to judge?? When the program reaches the depth limit, 
     apply the evaluation function. Return the best move.'''
-
+    # if state in cache:
+    #     return cache[state]
     v = max_value(state, -float('inf'), float('inf'), 1, player, state, player) #TODO change to opponent's player??
-
+    # cache[state] = v[0]
     # print(v)
     return v[0]
 
@@ -158,7 +159,7 @@ def max_value(state, alpha, beta, depth, player, ogs,maxp): #TODO - assign depth
     '''
     max_depth = 8 # TODO - pick good one
     if is_terminal(state, player):
-            return (state, utility(state, player, maxp, depth))
+        return (state, utility(state, player, maxp, depth))
     if depth == max_depth: #or is_terminal(state, player)==True: # reached the depth limit. TODO - how to differentiate between terminal and non-terminal states?
         return (state, evaluate(state, maxp)) # estimate player's utility
     v = (None, -float('inf')) 
@@ -496,6 +497,7 @@ def play(state, turn='r', outputfile="output.txt"):
         turn = get_next_turn(turn) # switch turns
         res += convert_to_str(state)
         move_count += 1
+        print("move: ", move_count)
         state.display() # display the board
         print()
         #TODO: later write each state (including initial) into output file

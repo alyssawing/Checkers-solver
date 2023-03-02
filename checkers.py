@@ -63,9 +63,10 @@ def is_terminal(state, player):
     else:
         return False
 
-def utility(state, player, depth=1):
+def utility(state, player, maxp, depth=1):
     '''Return the utility of the player for a given TERMINAL state. The depth
-    is the current depth that the state is at, defaulted to 1.'''
+    is the current depth that the state is at, defaulted to 1. maxp is the 
+    maximum player in alpha beta pruning.'''
     red_points = 0
     black_points = 0
 
@@ -81,21 +82,23 @@ def utility(state, player, depth=1):
                 black_points += 2
 
     if red_points == 0: # red loses, black wins
-        if player == 'r':
+        if maxp == 'r':
             return -1000000/depth
             # return -float('inf')
         else:
             return 1000000/depth
             # return float('inf')
     elif black_points == 0: # red wins, black loses
-        if player == 'b':
+        if maxp == 'b':
             return -1000000/depth
             # return -float('inf')
         else:
             return 1000000/depth
             # return float('inf')
-    else:
+    elif maxp == player:
         return -1000000/depth   # if this a terminal state, I must not have any moves left then
+    else:
+        return 1000000/depth # a winning state
         # return -float('inf')    
     # elif gen_successors(state, player) == []: # no moves left for the turn, that player loses 
     #     return -float('inf')
@@ -141,7 +144,7 @@ def alpha_beta_search(state, player): #TODO - is this even right? FIX
     to have a list of moves to judge?? When the program reaches the depth limit, 
     apply the evaluation function. Return the best move.'''
 
-    v = max_value(state, -float('inf'), float('inf'), 0, player, state, player) #TODO change to opponent's player??
+    v = max_value(state, -float('inf'), float('inf'), 1, player, state, player) #TODO change to opponent's player??
 
     # print(v)
     return v[0]
@@ -155,7 +158,7 @@ def max_value(state, alpha, beta, depth, player, ogs,maxp): #TODO - assign depth
     '''
     max_depth = 8 # TODO - pick good one
     if is_terminal(state, player):
-            return (state, utility(state, maxp, depth))
+            return (state, utility(state, player, maxp, depth))
     if depth == max_depth: #or is_terminal(state, player)==True: # reached the depth limit. TODO - how to differentiate between terminal and non-terminal states?
         return (state, evaluate(state, maxp)) # estimate player's utility
     v = (None, -float('inf')) 
@@ -183,7 +186,7 @@ def min_value(state, alpha, beta, depth, player, ogs,maxp): #TODO - assign depth
     player, and depth. ogs is the original state (root of the game tree).'''
     max_depth = 8 # TODO - pick good one
     if is_terminal(state, player):
-        return (state, utility(state, maxp, depth))
+        return (state, utility(state, player, maxp, depth))
     if depth == max_depth: #or is_terminal(state, player)==True: # reached the depth limit. TODO - how to differentiate between terminal and non-terminal states?
         return (state, evaluate(state, maxp)) # estimate player's utility
     
@@ -585,6 +588,8 @@ if __name__ == '__main__':
     play(state, 'r')
     time2 = time.time()
     print("elapsed time: ", time2 - time1)
+
+    print(utility(state, 'r', 'b', 1))
 
     # sys.stdout = open(args.outputfile, 'w') #TODO later uncomment to write to output file 
 

@@ -506,10 +506,11 @@ def play(state, turn='r', outputfile="output.txt"):
         turn = get_next_turn(turn) # switch turns
         res += convert_to_str(state)
         move_count += 1
-        # print("move: ", move_count)
-        # print("player: ",get_next_turn(turn))
-        # state.display() # display the board
-        # print()
+        
+        print("move: ", move_count)
+        print("player: ",get_next_turn(turn))
+        state.display() # display the board
+        print()
     
     file.write(res)
     file.close()
